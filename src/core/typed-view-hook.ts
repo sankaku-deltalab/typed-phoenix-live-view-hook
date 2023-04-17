@@ -12,43 +12,26 @@ export class TTypedViewHook {
   static createHookWithModifier<Def extends HookTypeDefinition>(
     mod: TypedViewHookModifier<Def>
   ): TypedViewHook<Def> {
-    const filledMod = {
-      ...this.createNopMod<Def>(),
-      ...mod,
-    };
-
     return {
       mounted(): void {
-        filledMod.mounted(this);
+        mod.mounted && mod.mounted(this);
       },
       beforeUpdate(): void {
-        filledMod.beforeUpdate(this);
+        mod.beforeUpdate && mod.beforeUpdate(this);
       },
       updated(): void {
-        filledMod.updated(this);
+        mod.updated && mod.updated(this);
       },
       destroyed(): void {
-        filledMod.destroyed(this);
+        mod.updated && mod.updated(this);
       },
       disconnected(): void {
-        filledMod.disconnected(this);
+        mod.disconnected && mod.disconnected(this);
       },
       reconnected(): void {
-        filledMod.reconnected(this);
+        mod.reconnected && mod.reconnected(this);
       },
     } as TypedViewHook<Def>;
-  }
-
-  private static createNopMod<Def extends HookTypeDefinition>() {
-    /* eslint-disable @typescript-eslint/no-unused-vars */
-    return {
-      mounted(hook: TypedViewHook<Def>): void {},
-      beforeUpdate(hook: TypedViewHook<Def>): void {},
-      updated(hook: TypedViewHook<Def>): void {},
-      destroyed(hook: TypedViewHook<Def>): void {},
-      disconnected(hook: TypedViewHook<Def>): void {},
-      reconnected(hook: TypedViewHook<Def>): void {},
-    };
   }
 
   static pushEvent<
