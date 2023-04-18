@@ -45,6 +45,7 @@ const Hooks = {
 const csrfToken = document!
   .querySelector("meta[name='csrf-token']")!
   .getAttribute('content');
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const liveSocket = new LiveSocket('/live', Socket, {
   params: {_csrf_token: csrfToken},
   hooks: Hooks,
@@ -55,7 +56,6 @@ const liveSocket = new LiveSocket('/live', Socket, {
 
 // 6. Push event to server
 TTypedViewHook.pushEvent<CSDef, 'countOver10'>(
-  liveSocket,
   document!.getElementById('id-of-client-sider')!,
   'countOver10',
   {count: 10},
@@ -75,12 +75,9 @@ const f = async () => {
   const [reply, ref] = await TTypedViewHook.pushEventPromise<
     CSDef,
     'countOver10'
-  >(
-    liveSocket,
-    document!.getElementById('id-of-client-sider')!,
-    'countOver10',
-    {count: 10}
-  );
+  >(document!.getElementById('id-of-client-sider')!, 'countOver10', {
+    count: 10,
+  });
   console.log(`reply: ${JSON.stringify(reply)}`);
   console.log(`ref: ${ref}`);
 };

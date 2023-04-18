@@ -1,4 +1,3 @@
-import {LiveSocket} from 'phoenix_live_view';
 import {
   C2SEventKey,
   C2SEventPayload,
@@ -6,7 +5,6 @@ import {
   HookTypeDefinition,
 } from '../typing/hook-type-definition';
 import {TypedViewHook} from '../typing/typed-view-hook';
-import {LiveSocketCanGetView} from '../typing/typed-live-socket';
 
 export class TTypedViewHook {
   static createHookWithModifier<Def extends HookTypeDefinition>(
@@ -15,6 +13,8 @@ export class TTypedViewHook {
     return {
       mounted(): void {
         mod.mounted && mod.mounted(this);
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (this.el as any)['__typed_view_hook'] = this;
       },
       beforeUpdate(): void {
         mod.beforeUpdate && mod.beforeUpdate(this);
@@ -38,16 +38,16 @@ export class TTypedViewHook {
     Def extends HookTypeDefinition,
     Key extends C2SEventKey<Def>
   >(
-    socket: LiveSocket,
     el: HTMLElement,
     key: Key,
     payload: C2SEventPayload<Def, Key>,
     callback?: (reply: C2SEventReply<Def, Key>, ref: number) => void
   ): void {
-    const soc = socket as unknown as LiveSocketCanGetView;
-    const view = soc.getViewByEl(el);
-    if (view === undefined) throw new Error('Element is not in socket');
-    const hook = view.getHook(el) as TypedViewHook<Def>;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const hook = (el as any)['__typed_view_hook'] as
+      | TypedViewHook<Def>
+      | undefined;
+    if (hook === undefined) throw new Error('Element is not has phy-hook');
     hook.pushEvent(key, payload, callback);
   }
 
@@ -55,7 +55,6 @@ export class TTypedViewHook {
     Def extends HookTypeDefinition,
     Key extends C2SEventKey<Def>
   >(
-    socket: LiveSocket,
     el: HTMLElement,
     key: Key,
     payload: C2SEventPayload<Def, Key>
@@ -66,7 +65,7 @@ export class TTypedViewHook {
       };
 
       try {
-        this.pushEvent(socket, el, key, payload, callback);
+        this.pushEvent(el, key, payload, callback);
       } catch (e) {
         reject(e);
       }
