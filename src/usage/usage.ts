@@ -8,8 +8,8 @@ import {TypedViewHook} from '../typing/typed-view-hook';
 type CSDef = DefineHookType<{
   el: HTMLElement;
   c2sEvents: {
-    countUp: {payload: {}; reply: {}};
-    countOver10: {payload: {count: number}; reply: {}};
+    countUp: {payload: {}; reply: null};
+    countOver10: {payload: {count: number}; reply: {actual: number}};
   };
   s2cEvents: {
     setCount: {payload: {count: number}};
@@ -65,6 +65,7 @@ TTypedViewHook.pushEvent<CSDef, 'countOver10'>(
 // def handle_event("countOver10", %{"count" => count}, socket) do
 //   # do something
 //   {:noreply, socket}
+//   # or {:reply, %{...}, socket}
 // end
 
 // You can push event as promise

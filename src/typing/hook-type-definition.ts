@@ -1,7 +1,10 @@
 export type HookTypeDefinition = {
   el: HTMLElement;
   // client to server event
-  c2sEvents: Record<string, {payload: Record<string, unknown>; reply: unknown}>;
+  c2sEvents: Record<
+    string,
+    {payload: Record<string, unknown>; reply: Record<string, unknown> | null}
+  >;
   // server to client event
   s2cEvents: Record<string, {payload: Record<string, unknown>}>;
 };
