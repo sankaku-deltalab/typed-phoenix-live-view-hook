@@ -11,6 +11,29 @@ import {
 } from './hook-type-definition';
 import {HookCore} from './hook-core';
 
+/**
+ * Base class for typed hook.
+ * User must create instances via `TypedHook.fromCore`.
+ *
+ * @example
+ *
+ * ```ts
+ * import {TypedHook, DefineHookType, HookCore} from 'typed-phoenix-live-view-hook';
+ *
+ * // 1. Define hook types
+ * type ClientSiderDef = DefineHookType<...>;
+ *
+ * // 2. Define hook core
+ * class ClientSiderCore implements HookCore<ClientSiderDef> {
+ *   ...
+ * }
+ *
+ * // 3. Create hooks
+ * const Hooks = {
+ *   ClientSider: TypedHook.fromCore(new ClientSiderCore()),
+ * };
+ * ```
+ */
 export class TypedHook<Def extends HookTypeDefinition> implements ViewHook {
   readonly el!: El<Def>;
   readonly viewName!: string;

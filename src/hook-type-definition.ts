@@ -1,3 +1,6 @@
+/**
+ * Type definition for a hook.
+ */
 export type HookTypeDefinition = {
   el: HTMLElement;
   // client to server event

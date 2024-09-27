@@ -2,6 +2,10 @@
 import {HookTypeDefinition} from './hook-type-definition';
 import {TypedHook} from './typed-hook';
 
+/**
+ * HookCore is a class containing user-defined hook functions.
+ * To create hook object, user should implement this class and pass it to `TypedHook.fromCore`.
+ */
 export interface HookCore<Def extends HookTypeDefinition> {
   mounted?: (hook: TypedHook<Def>) => void;
   beforeUpdate?: (hook: TypedHook<Def>) => void;
