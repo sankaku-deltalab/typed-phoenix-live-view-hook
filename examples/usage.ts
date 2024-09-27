@@ -1,11 +1,11 @@
 import {Socket} from 'phoenix';
 import {LiveSocket} from 'phoenix_live_view';
-import {TypedViewHookModifier, TTypedViewHook} from '../core/typed-view-hook';
-import {DefineHookType} from '../typing/hook-type-definition';
-import {TypedViewHook} from '../typing/typed-view-hook';
+import {TypedHook} from '../src/typed-hook';
+import {DefineHookType} from '../src/hook-type-definition';
+import {HookCore} from '../src/hook-core';
 
 // 1. Define hook types
-type CSDef = DefineHookType<{
+type ClientSiderDef = DefineHookType<{
   el: HTMLElement;
   c2sEvents: {
     countUp: {payload: {}; reply: null};
@@ -16,26 +16,27 @@ type CSDef = DefineHookType<{
   };
 }>;
 
-// 2. Define hook modifiers
-class ClientSider implements TypedViewHookModifier<CSDef> {
-  mounted(hook: TypedViewHook<CSDef>): void {
-    // # push event from server
+// 2. Define hook core
+class ClientSiderCore implements HookCore<ClientSiderDef> {
+  mounted(hook: TypedHook<ClientSiderDef>): void {
+    // Call `hook.handleEvent` to take event from server
     // # https://hexdocs.pm/phoenix_live_view/js-interop.html#handling-server-pushed-events
+    //
+    // # How to push event from server:
     // def handle_info({:item_updated, item}, socket) do
     //   {:noreply, push_event(socket, "setCount", %{count: 10})}
     // end
-    // And take event at client
     hook.handleEvent('setCount', payload => {
       console.log('Event "setCount" was pushed from server.', payload);
     });
   }
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  destroyed(hook: TypedViewHook<CSDef>): void {}
+  destroyed(hook: TypedHook<ClientSiderDef>): void {}
 }
 
 // 3. Create hooks
 const Hooks = {
-  ClientSider: TTypedViewHook.createHookWithModifier(new ClientSider()),
+  ClientSider: TypedHook.fromCore(new ClientSiderCore()),
 };
 
 // 4. Give hooks to LiveSocket in `assets/js/app.js`
@@ -49,10 +50,12 @@ const liveSocket = new LiveSocket('/live', Socket, {
 });
 
 // 5. Use hooks at server
+// ~H"""
 // <div id="id-of-client-sider" phx-hook="ClientSider">
+// """
 
 // 6. Push event to server
-TTypedViewHook.pushEvent<CSDef, 'countOver10'>(
+TypedHook.pushEvent<ClientSiderDef, 'countOver10'>(
   document!.getElementById('id-of-client-sider')!,
   'countOver10',
   {count: 10},
@@ -70,8 +73,8 @@ TTypedViewHook.pushEvent<CSDef, 'countOver10'>(
 
 // You can push event as promise
 const f = async () => {
-  const [reply, ref] = await TTypedViewHook.pushEventPromise<
-    CSDef,
+  const [reply, ref] = await TypedHook.pushEventPromise<
+    ClientSiderDef,
     'countOver10'
   >(document!.getElementById('id-of-client-sider')!, 'countOver10', {
     count: 10,
