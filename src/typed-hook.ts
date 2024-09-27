@@ -61,30 +61,30 @@ export class TypedHook<Def extends HookTypeDefinition> implements ViewHook {
 
   static fromCore<Def extends HookTypeDefinition>(
     core: HookCore<Def>
-  ): TypedHook<Def> {
+  ): ViewHook {
     // Create a hook as new Object
     // Because phoenix_live_view lib don't use functions of prototype.
 
     const hook = {
       mounted(): void {
-        core.mounted && core.mounted(hook);
+        core.mounted && core.mounted(this as TypedHook<Def>);
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        (hook.el as any)['__typed_view_hook'] = hook;
+        ((this as any).el as any)['__typed_view_hook'] = this;
       },
       beforeUpdate(): void {
-        core.beforeUpdate && core.beforeUpdate(hook);
+        core.beforeUpdate && core.beforeUpdate(this as TypedHook<Def>);
       },
       updated(): void {
-        core.updated && core.updated(hook);
+        core.updated && core.updated(this as TypedHook<Def>);
       },
       destroyed(): void {
-        core.updated && core.updated(hook);
+        core.updated && core.updated(this as TypedHook<Def>);
       },
       disconnected(): void {
-        core.disconnected && core.disconnected(hook);
+        core.disconnected && core.disconnected(this as TypedHook<Def>);
       },
       reconnected(): void {
-        core.reconnected && core.reconnected(hook);
+        core.reconnected && core.reconnected(this as TypedHook<Def>);
       },
     } as unknown as TypedHook<Def>;
 
